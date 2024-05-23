@@ -25,14 +25,25 @@ public class evalJSON {
     public static String analysisId(String response){
         JSONObject entireResponse = TexttoJSON(response);
         try {//hex is present in VT DB.
+            JSONObject data = entireResponse.getJSONObject("data");
+            return data.get("id").toString();
 
-            return entireResponse.getJSONObject("data")
-                    .getJSONObject("id").toString();
         }
         catch (JSONException ex){//NOT present in VT DB.
-
-            return null;
+            return ex + "either `data` or `id` field are not present in:" + response;
         }
 
+    }
+
+    public static String StatsByAId(String response){
+        JSONObject entireResponse = TexttoJSON(response);
+        try{
+            return entireResponse.getJSONObject("data")
+                    .getJSONObject("attributes")
+                    .getJSONObject("stats").toString();
+        }
+        catch (JSONException ex){
+            return ex+ "one the following key is missing data->attributes->stats in :"+response;
+        }
     }
 }

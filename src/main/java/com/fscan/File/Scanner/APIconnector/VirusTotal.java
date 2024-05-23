@@ -34,8 +34,7 @@ public class VirusTotal {
         }
 
     }
-    public static String UploadFile(MultipartFile multipartFile) {
-        String analysis_id = null;
+    public static String UploadFile(MultipartFile multipartFile)  {//Error needs to be fixed
 
 
         String API_KEY = "2bd12a101f2e4fee4a17242edd7f5215ccc4350d2ba0417916c87705bf5cf1b3";
@@ -45,8 +44,8 @@ public class VirusTotal {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody fileBody = null;
-        try {
-            fileBody = RequestBody.create(MediaType.parse(Objects.requireNonNull(multipartFile.getContentType())), multipartFile.getBytes());
+        try {//error
+            fileBody = RequestBody.create(MediaType.parse(multipartFile.getContentType()), multipartFile.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e + "at Request Body");
         }
@@ -66,13 +65,33 @@ public class VirusTotal {
 
         try {
             Response response = client.newCall(request).execute();
-//        System.out.println(response.body().string());
-            analysis_id = evalJSON.analysisId(response.body().string());
+            return evalJSON.analysisId(response.body().string());
+
         } catch (IOException e) {
             throw new RuntimeException(e + "at client Response");
         }
 
-        return analysis_id;
+    }
+    public static String ScanById(String analysisID){
+        String API_KEY = "2bd12a101f2e4fee4a17242edd7f5215ccc4350d2ba0417916c87705bf5cf1b3";
+
+        String URL = "https://www.virustotal.com/api/v3/analyses/" + analysisID;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(URL)
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("X-Apikey", API_KEY)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return evalJSON.StatsByAId(response.body().string());
+        } catch (IOException e) {
+            return e+"while getting response from analysis client";
+        }
+
     }
 
 }

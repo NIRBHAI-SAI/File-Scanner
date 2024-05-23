@@ -29,14 +29,20 @@ public class FileController {
             return new ResponseEntity<>("IOException", HttpStatus.NOT_ACCEPTABLE);
         }
         String result = evalJSON.analysisStats(VirusTotal.ScanByHex(hexCode));
+
         if(Objects.equals(result, "NotFoundError")){
             String analysis_id = null;
             analysis_id = VirusTotal.UploadFile(file);
-            return new ResponseEntity<>("File uploaded to VT DB analysis id:"+analysis_id,HttpStatus.ACCEPTED);
+            return new ResponseEntity<>("File uploaded to VT DB analysis id :"+analysis_id,HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>(result,HttpStatus.ACCEPTED);
 
+    }
+    @PostMapping("/ScanById")
+    public ResponseEntity<String> IdHandler(@RequestParam("id") String id){
+        String Stats = VirusTotal.ScanById(id);
+        return new ResponseEntity<>(Stats,HttpStatus.ACCEPTED);
     }
 
 }
