@@ -46,4 +46,15 @@ public class evalJSON {
             return ex+ "one the following key is missing data->attributes->stats in :"+response;
         }
     }
+    public static String Status(String response){
+        JSONObject entireResponse = TexttoJSON(response);
+        try{
+            return entireResponse.getJSONObject("data")
+                    .getJSONObject("attributes")
+                    .get("status").toString();
+        }
+        catch (JSONException ex){
+            return ex+ "one the following key is missing data->attributes->status in :"+response;
+        }
+    }
 }
