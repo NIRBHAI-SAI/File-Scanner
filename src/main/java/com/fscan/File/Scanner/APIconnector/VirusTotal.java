@@ -1,8 +1,6 @@
 package com.fscan.File.Scanner.APIconnector;
 
-
-
-
+import com.fscan.File.Scanner.utils.Delay;
 import com.fscan.File.Scanner.evaluator.evalJSON;
 import okhttp3.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,10 +25,10 @@ public class VirusTotal {
         upload = rb.getString("url-upload");
 
     }
-    public static String ScanByHex(String hex_code){
+    public static String ScanByHex(String hex_code){//After one Client Response the MultiPartfile
+        // will be removed from our temp database which cases an error in uploading the file
 
         String URL = scanHex + hex_code;
-//        String API_KEY = "2bd12a101f2e4fee4a17242edd7f5215ccc4350d2ba0417916c87705bf5cf1b3";
         HttpRequest req = HttpRequest.newBuilder().GET()
                 .uri(URI.create(URL))
                 .setHeader("accept", "application/json")
@@ -45,10 +43,8 @@ public class VirusTotal {
         }
 
     }
-    public static String UploadFile(MultipartFile multipartFile)  {//Error needs to be fixed
+    public static String UploadFile(MultipartFile multipartFile)  {
 
-
-//        String API_KEY = "2bd12a101f2e4fee4a17242edd7f5215ccc4350d2ba0417916c87705bf5cf1b3";
 
 
         OkHttpClient client = new OkHttpClient();
@@ -83,26 +79,38 @@ public class VirusTotal {
 
     }
     public static String ScanById(String analysisID){
-//        String API_KEY = "2bd12a101f2e4fee4a17242edd7f5215ccc4350d2ba0417916c87705bf5cf1b3";
 
         String URL = scanId + analysisID;
 
-        String URL = "https://www.virustotal.com/api/v3/analyses/" + analysisID;
-        OkHttpClient client = new OkHttpClient();
+        String status = "queued";
 
-        Request request = new Request.Builder()
-                .url(URL)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("X-Apikey", API_KEY)
-                .build();
 
-        try {
-            Response response = client.newCall(request).execute();
-            return evalJSON.StatsByAId(response.body().string());
-        } catch (IOException e) {
-            return e+"while getting response from analysis client";
+        while(true){//if our request to Virus Total is Queued we can decide the verdict based
+            //Stats so Repeatedly getting the request from VT will allow us to fetch the results
+            //in time
+
+            Delay.delayInMin(1.5);//1.5 min delay
+
+            HttpRequest req = HttpRequest.newBuilder().GET()
+                    .uri(URI.create(URL))
+                    .setHeader("accept", "application/json")
+                    .setHeader("X-Apikey", apiKey).build();
+            HttpClient client = HttpClient.newBuilder().build();
+            HttpResponse<String> Response = null;
+            try {
+                Response = client.send(req, HttpResponse.BodyHandlers.ofString());
+                status = evalJSON.Status(Response.body());
+                if(Objects.equals(status, "completed")){
+                    return evalJSON.StatsByAId(Response.body());
+                } else if (!Objects.equals(status, "queued")) {
+                    return status;
+                }
+            } catch (Exception e) {
+                return e+ " while getting response from analysis_id end point";
+            }
+
         }
+
 
     }
 
