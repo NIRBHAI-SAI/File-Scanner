@@ -33,7 +33,12 @@ public class FileController {
         if(Objects.equals(result, "NotFoundError")){
             String analysis_id = null;
             analysis_id = VirusTotal.UploadFile(file);
-            return new ResponseEntity<>("File uploaded to VT DB analysis id :"+analysis_id,HttpStatus.ACCEPTED);
+            if(analysis_id.charAt(analysis_id.length()-1) == '=' && analysis_id.charAt(analysis_id.length()-2) == '='){
+                String Stats = VirusTotal.ScanById(analysis_id);
+                return new ResponseEntity<>("File uploaded to Virus Total DataBase" +
+                        " with analysis ID: "+analysis_id+"\n"+Stats,HttpStatus.ACCEPTED);
+            }
+            return new ResponseEntity<>("Error in getting analysis id"+ analysis_id,HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity<>(result,HttpStatus.ACCEPTED);

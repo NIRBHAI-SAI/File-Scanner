@@ -45,8 +45,6 @@ public class VirusTotal {
     }
     public static String UploadFile(MultipartFile multipartFile)  {
 
-
-
         OkHttpClient client = new OkHttpClient();
 
         RequestBody fileBody = null;
@@ -74,7 +72,7 @@ public class VirusTotal {
             return evalJSON.analysisId(response.body().string());
 
         } catch (IOException e) {
-            throw new RuntimeException(e + "at client Response");
+            return  e + "at client Response";
         }
 
     }
