@@ -24,8 +24,7 @@ dependencies {
 	implementation("com.google.guava:guava:33.2.0-jre")
 	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
 	implementation("org.json:json:20231013")
-
-
+	implementation("org.springframework:spring-mock:2.0.8")
 
 
 }
