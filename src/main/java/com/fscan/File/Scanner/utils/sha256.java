@@ -10,8 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class sha256 {
-    @Value("${file.path}")
-    private static String filePath;
+
 
 
     public static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
