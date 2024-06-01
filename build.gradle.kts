@@ -16,6 +16,8 @@ repositories {
 }
 
 dependencies {
+
+
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -25,6 +27,12 @@ dependencies {
 	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
 	implementation("org.json:json:20231013")
 	implementation("org.springframework:spring-mock:2.0.8")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa");
+	implementation("org.springframework.boot:spring-boot-starter-data-rest");
+	runtimeOnly("org.postgresql:postgresql");
+	compileOnly("org.projectlombok:lombok:1.18.30")
+	implementation("org.modelmapper:modelmapper:3.2.0")
+
 
 
 }

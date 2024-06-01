@@ -4,14 +4,12 @@ package com.fscan.File.Scanner.utils;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 
 public class sha256 {
-    @Value("${file.path}")
-    private static String filePath;
+
 
 
     public static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
