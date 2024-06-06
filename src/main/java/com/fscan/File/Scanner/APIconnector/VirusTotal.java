@@ -9,8 +9,9 @@ import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,10 +20,12 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+@Component
 public class VirusTotal {
 
     private static final String apiKey,scanHex,scanId,upload;
-    private static final Logger log = LoggerFactory.getLogger(VirusTotal.class);
+    private final Logger log = LoggerFactory.getLogger(VirusTotal.class);
+
 
     static {
         ResourceBundle rb = ResourceBundle.getBundle("api-config");
@@ -34,7 +37,7 @@ public class VirusTotal {
     }
 
 
-    private static String ScanByHex(String hex_code){
+    private String ScanByHex(String hex_code) throws IOException, InterruptedException {
         //After one Client Response the MultiPartfile
         // will be removed from our temp database which cases an error in uploading the file
         log.info("Calculating HEX");
@@ -45,17 +48,15 @@ public class VirusTotal {
                 .setHeader("X-Apikey", apiKey).build();
         HttpClient client = HttpClient.newBuilder().build();
         HttpResponse<String> Response = null;
-        try {
+
             Response = client.send(req, HttpResponse.BodyHandlers.ofString());
             return Response.body();
-        } catch (Exception e) {
-            return "00";
-        }
+
 
     }
 
+    private String UploadFile(MultipartFile multipartFile)  {
 
-    private static String UploadFile(MultipartFile multipartFile)  {
 
         OkHttpClient client = new OkHttpClient();
 
@@ -80,6 +81,7 @@ public class VirusTotal {
                 .build();
 
         try {
+//            Response response = restTemplate.execute(upload, HttpMethod.POST,request);
             Response response = client.newCall(request).execute();
             return evalJSON.analysisId(response.body().string());
 
@@ -89,8 +91,7 @@ public class VirusTotal {
 
     }
 
-
-    public static String ScanById(String analysisID,FileAuditService fileAuditService,Long id){
+    public String ScanById(String analysisID,FileAuditService fileAuditService,Long id){
 
         String URL = scanId + analysisID;
         fileAuditService.updateStatus(id,"Scanning using AnalysisID");
@@ -131,7 +132,7 @@ public class VirusTotal {
 
     }
 
-    public static String ScanByFile(MultipartFile file,FileAuditService fileAuditService,Long id){
+    public String ScanByFile(MultipartFile file,FileAuditService fileAuditService,Long id){
         String originalFileName = file.getOriginalFilename();
         String name = file.getName();
         String contentType = file.getContentType();
@@ -152,7 +153,16 @@ public class VirusTotal {
         fileAuditService.updateStatus(id,"Scanning Using SHA256");
         fileAuditService.updateDT(id);
 
-        String result = evalJSON.analysisStats(VirusTotal.ScanByHex(hexCode));
+        String responseForHexScan =null;
+        try{
+            responseForHexScan = this.ScanByHex(hexCode);
+        }
+        catch (Exception e){
+            return "Error in fetching response from VT end point";
+        }
+
+        String result = evalJSON.analysisStats(responseForHexScan);
+
         //get results by using HEXcode
         //result will be either a proper stats(malicious,harmless,undetected)
         // or Not foundError (if hex code is not present in DB).
@@ -167,7 +177,7 @@ public class VirusTotal {
         // initial file will be available for GC as one request is made(Scan by hex-code)
         // so creating a multipart file.
 
-        String analysis_id = VirusTotal.UploadFile(mockMultipartFile);//Getting Analysis ID from VT
+        String analysis_id = this.UploadFile(mockMultipartFile);//Getting Analysis ID from VT
         if(Validators.IsAnalyisId(analysis_id)){
             //we received a proper analysis_id
             fileAuditService.updateStatus(id,"File uploaded to Virus Total Database");
