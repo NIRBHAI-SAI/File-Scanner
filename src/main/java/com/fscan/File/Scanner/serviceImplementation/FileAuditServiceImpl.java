@@ -5,7 +5,6 @@ import com.fscan.File.Scanner.FileAuditDTO.FileAuditDTO;
 import com.fscan.File.Scanner.entity.FileAudit;
 import com.fscan.File.Scanner.repository.FileAuditRepo;
 import com.fscan.File.Scanner.service.FileAuditService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
