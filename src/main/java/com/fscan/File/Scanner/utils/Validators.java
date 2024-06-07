@@ -12,7 +12,7 @@ public class Validators {
 
         int len = analysisId.length();
 
-        return len==60 && analysisId.charAt(len - 1) == '=' && analysisId.charAt(len - 2) == '=';
+        return len==60 && analysisId.charAt(len - 1) == '=' ;
 
     }
 
